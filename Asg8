@@ -1,0 +1,36 @@
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from transformers import pipeline
+
+# Sample university documents
+documents = [
+    "The semester examination starts on 15 December.",
+    "Students must carry their college identity card during exams.",
+    "Hostel students must return before 9 PM.",
+    "Admission requires 10th and 12th marksheets."
+]
+
+# Convert documents into embeddings
+model = SentenceTransformer("all-MiniLM-L6-v2")
+embeddings = model.encode(documents)
+
+# Load question-answer generation model
+llm = pipeline("text2text-generation", model="google/flan-t5-small")
+
+# Ask a question
+question = input("Enter your question: ")
+
+# Retrieve the most relevant document
+q_embedding = model.encode([question])
+scores = cosine_similarity(q_embedding, embeddings)[0]
+top_index = scores.argmax()
+
+context = documents[top_index]
+
+# Generate answer using retrieved context
+prompt = "Answer using this information only: " + context + " Question: " + question
+
+answer = llm(prompt, max_new_tokens=60)
+
+print("Retrieved Context:", context)
+print("Answer:", answer[0]["generated_text"])
