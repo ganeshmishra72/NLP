@@ -1,0 +1,45 @@
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
+
+docs = [
+    "Machine learning is useful",
+    "Deep learning uses machine learning",
+    "Machine learning helps students"
+]
+
+# 1. Bag of Words
+bow = CountVectorizer()
+bow_result = bow.fit_transform(docs)
+
+print("Bag of Words:")
+print(bow_result.toarray())
+print("Words:", bow.get_feature_names_out())
+
+# 2. TF-IDF
+tfidf = TfidfVectorizer()
+tfidf_result = tfidf.fit_transform(docs)
+
+print("\nTF-IDF:")
+print(tfidf_result.toarray())
+
+# 3. Cosine Similarity
+similarity = cosine_similarity(tfidf_result)
+print("\nSimilarity:")
+print(similarity)
+
+# 4. Plagiarism Detection
+if similarity[0][1] > 0.85:
+    print("Possible plagiarism detected")
+else:
+    print("No high similarity detected")
+
+# 5. Plot keyword frequencies
+words = bow.get_feature_names_out()
+counts = bow_result.toarray().sum(axis=0)
+
+plt.bar(words, counts)
+plt.xticks(rotation=45)
+plt.title("Word Frequencies")
+plt.tight_layout()
+plt.show()
